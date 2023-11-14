@@ -7,7 +7,7 @@
 </script>
 
 <div class="w-full border-b">
-	<nav class="flex justify-between py-4 max-w-5xl mx-auto px-4 items-center">
+	<nav class="flex justify-between py-2 max-w-5xl mx-auto px-4 items-center">
 		<a href="/">Home</a>
 	
 		<div class="flex gap-2 items-center">

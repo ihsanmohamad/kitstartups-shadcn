@@ -77,7 +77,7 @@
 </Form.Root>
 
 <div class="text-center">
-	<p class="text-sm text-gray-600">
+	<p class="text-sm text-secondary-foreground">
 		Already have an account? <a href="/auth/login" class="font-medium text-primary hover:underline"
 			>Login instead</a
 		>

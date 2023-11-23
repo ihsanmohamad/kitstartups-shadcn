@@ -1,53 +1,41 @@
 import { validatePasswordResetToken } from '$lib/drizzle/postgres/models/tokens';
 import { auth } from '$lib/lucia/postgres';
-import { getFeedbackObjects } from '$lib/utils';
-import { fail, redirect } from '@sveltejs/kit';
-import { z } from 'zod';
+import { fail } from '@sveltejs/kit';
+import { redirect, setFlash } from 'sveltekit-flash-message/server';
+import { superValidate } from "sveltekit-superforms/server";
+import type { PageServerLoad } from "./$types";
+import { resetPasswordSchema } from '$lib/drizzle/postgres/zodSchema';
+export const load: PageServerLoad = async ({ locals }) => {
+	const session = await locals.auth.validate();
 
-const newPasswordSchema = z.object({
-	password: z.string().nonempty()
-});
+	if (session) {
+		throw redirect(302, '/app/profile');
+	}
+
+	return {form: superValidate(resetPasswordSchema)};
+};
 
 export const actions = {
-	resetPassword: async ({ locals, params, request }) => {
-		const formData = Object.fromEntries(await request.formData());
-		const newPassword = newPasswordSchema.safeParse(formData);
+	resetPassword: async (event) => {
+		const form = await superValidate(event, resetPasswordSchema);
 
-		if (!newPassword.success) {
-			const feedbacks = getFeedbackObjects(
-				newPassword.error.issues.map((issue) => {
-					return {
-						type: 'error',
-						path: String(issue.path[0]),
-						title: 'Invalid ' + issue.path[0],
-						message: issue.message
-					};
-				})
-			);
-
-			return fail(500, {
-				feedbacks
+		if (!form.valid) {
+			return fail(400, {
+				form
 			});
 		}
 
-		const { password } = newPassword.data;
+		const { password } = form.data;
 
 		try {
-			const { token } = params;
+			const { token } = event.params;
 			const userId = await validatePasswordResetToken(token);
 			let user = await auth.getUser(userId);
 
 			if (!user) {
-				const feedbacks = getFeedbackObjects([
-					{
-						type: 'error',
-						title: 'Invalid or expired password reset link',
-						message: 'Please try again'
-					}
-				]);
-
+				setFlash({ type: 'error', title: 'Invalid or expired password reset link', description: 'Please try again.' }, event);
 				return fail(400, {
-					feedbacks
+					form
 				});
 			}
 
@@ -67,18 +55,11 @@ export const actions = {
 				attributes: {}
 			});
 
-			locals.auth.setSession(session);
+			event.locals.auth.setSession(session);
 		} catch (e) {
-			const feedbacks = getFeedbackObjects([
-				{
-					type: 'error',
-					title: 'Invalid reset link',
-					message: 'Your password reset link is invalid or has expired. Please try again.'
-				}
-			]);
-
+			setFlash({ type: 'error', title: 'Invalid reset link', description: 'Your password reset link is invalid or has expired. Please try again..' }, event);
 			return fail(400, {
-				feedbacks
+				form
 			});
 		}
 

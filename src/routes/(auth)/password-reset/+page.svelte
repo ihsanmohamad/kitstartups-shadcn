@@ -1,38 +1,13 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	import InlineFormNotice from '$lib/components/InlineFormNotice.svelte';
-	import SubmitButton from '$lib/components/SubmitButton.svelte';
-	import { createToast } from '$lib/components/Toast.svelte';
-	import { getFeedbackObjectByPath } from '$lib/utils';
-	import type { SubmitFunction } from '@sveltejs/kit';
-	import type { ActionData } from './$types.js';
+	import * as Card from '$lib/components/ui/card';
+	import * as Form from '$lib/components/ui/form';
+	import { resetUserSchema, type ResetUserForm } from '$lib/drizzle/postgres/zodSchema.js';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import * as flashModule from 'sveltekit-flash-message/client';
 
 	export let data;
-	export let form: ActionData;
-
+	let form: SuperValidated<ResetUserForm> = data?.form;
 	let running = false;
-	const submitSendResetPasswordLink: SubmitFunction = () => {
-		running = true;
-
-		return async ({ update }) => {
-			running = false;
-			await update();
-		};
-	};
-
-	$: {
-		if (form?.feedbacks && form.feedbacks.length > 0) {
-			form.feedbacks.forEach((feedback) => {
-				if (!feedback.path) {
-					createToast({
-						type: feedback.type,
-						title: feedback.title,
-						description: feedback.message
-					});
-				}
-			});
-		}
-	}
 </script>
 
 <svelte:head>
@@ -42,25 +17,57 @@
 <div class="text-center">
 	<h1 class="text-3xl font-bold">Get a reset link</h1>
 </div>
-
-<div class="p-8 border border-gray-300 rounded-sm shadow-sm">
-	<form method="post" action="?/sendPasswordResetLink" use:enhance={submitSendResetPasswordLink}>
-		<div class="form-control">
-			<label for="email">Email</label>
-			<input type="email" name="email" placeholder="Your email address" required />
-			<InlineFormNotice feedback={getFeedbackObjectByPath(form?.feedbacks, 'email')} />
-		</div>
-
-		<SubmitButton {running} text="Email password reset link" />
-	</form>
-</div>
+<Form.Root
+	method="POST"
+	action="?/sendPasswordResetLink"
+	options={{
+		flashMessage: {
+			module: flashModule,
+			onError: ({ message }) => {
+				message.set({
+					type: 'error',
+					title: 'Something Happened',
+					description: 'An unknown error occurred. Please try again later.'
+				});
+			}
+		},
+		onSubmit: () => {
+			running = true;
+		},
+		onResult: () => {
+			running = false;
+		},
+		delayMs: 500,
+		timeoutMs: 8000
+	}}
+	{form}
+	schema={resetUserSchema}
+	let:config
+>
+	<Card.Root>
+		<Card.Header>
+			<Card.Title>Send reset link</Card.Title>
+		</Card.Header>
+		<Card.Content>
+			<Form.Field {config} name="email">
+				<Form.Item>
+					<Form.Label>Email *</Form.Label>
+					<Form.Input placeholder="Your email" />
+					<Form.Validation />
+				</Form.Item>
+			</Form.Field>
+		</Card.Content>
+		<Card.Footer>
+			<Form.Button {running} class="w-full">Email password reset link</Form.Button>
+		</Card.Footer>
+	</Card.Root>
+</Form.Root>
 
 {#if !data.user}
-	<div class="text-center">
-		<p class="text-sm text-gray-600">
-			Already have an account? <a href="/auth/login" class="font-medium text-blue-600 underline"
-				>Login instead</a
-			>
-		</p>
-	</div>
+	<p class="text-sm text-center text-secondary-foreground">
+		Already have an account? <a
+			href="/auth/login"
+			class="font-medium text-primary hover:underline">Login instead</a
+		>
+	</p>
 {/if}

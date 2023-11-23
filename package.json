@@ -2,6 +2,9 @@
 	"name": "@kfs/starter",
 	"version": "0.0.1",
 	"private": true,
+	"trigger.dev": {
+		"endpointId": "popyt"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
@@ -19,7 +22,8 @@
 		"migrate:mysql": "tsx src/lib/drizzle/mysql/migrations/migrate.ts",
 		"migrate:postgres": "tsx src/lib/drizzle/postgres/migrations/migrate.ts",
 		"migrate:turso": "tsx src/lib/drizzle/turso/migrations/migrate.ts",
-		"studio": "drizzle-kit studio --config=src/lib/drizzle/postgres/drizzle.config.ts"
+		"studio": "drizzle-kit studio --config=src/lib/drizzle/postgres/drizzle.config.ts",
+		"trigger": "pnpm dlx @trigger.dev/cli@latest dev --port 5173"
 	},
 	"devDependencies": {
 		"@melt-ui/pp": "^0.1.2",
@@ -57,6 +61,8 @@
 		"@lucia-auth/adapter-sqlite": "^2.0.0",
 		"@lucia-auth/oauth": "^3.0.0",
 		"@melt-ui/svelte": "^0.61.1",
+		"@trigger.dev/sdk": "^2.2.7",
+		"@trigger.dev/sveltekit": "^2.2.7",
 		"better-sqlite3": "^9.0.0",
 		"bits-ui": "^0.9.4",
 		"clsx": "^2.0.0",

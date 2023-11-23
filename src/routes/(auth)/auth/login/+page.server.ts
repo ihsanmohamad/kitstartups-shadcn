@@ -58,7 +58,7 @@ export const actions = {
 			});
 		}
 
-		throw redirect(302, '/app/profile');
+		throw redirect(302, '/');
 	},
 
 	logout: async (event) => {

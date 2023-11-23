@@ -57,15 +57,22 @@
 		</Form.Field>
 		<Form.Field {config} name="email">
 			<Form.Item>
-				<Form.Label>Email</Form.Label>
+				<Form.Label>Email *</Form.Label>
 				<Form.Input type="email" placeholder="Your email address" />
 				<Form.Validation />
 			</Form.Item>
 		</Form.Field>
 		<Form.Field {config} name="password">
 			<Form.Item>
-				<Form.Label>Password</Form.Label>
+				<Form.Label>Password *</Form.Label>
 				<Form.Input type="password" placeholder="Your password" />
+				<Form.Validation />
+			</Form.Item>
+		</Form.Field>
+		<Form.Field {config} name="confirm_password">
+			<Form.Item>
+				<Form.Label>Confirm Password *</Form.Label>
+				<Form.Input type="password" placeholder="Confirm your password" />
 				<Form.Validation />
 			</Form.Item>
 		</Form.Field>

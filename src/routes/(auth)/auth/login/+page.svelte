@@ -42,7 +42,7 @@
 				onSubmit: () => {
 					running = true;
 				},
-				onResult: (e) => {
+				onResult: () => {
 					running = false;
 				},
 				delayMs: 500,
@@ -54,14 +54,14 @@
 		>
 			<Form.Field {config} name="email">
 				<Form.Item>
-					<Form.Label>Email</Form.Label>
+					<Form.Label>Email *</Form.Label>
 					<Form.Input placeholder="Your email" />
 					<Form.Validation />
 				</Form.Item>
 			</Form.Field>
 			<Form.Field {config} name="password">
 				<Form.Item>
-					<Form.Label>Password</Form.Label>
+					<Form.Label>Password *</Form.Label>
 					<Form.Input placeholder="Your password" type="password" />
 					<Form.Validation />
 				</Form.Item>
@@ -92,7 +92,7 @@
 	</Card.Footer>
 </Card.Root>
 
-<p class="text-sm text-secondary-foreground">
+<p class="text-sm text-center text-secondary-foreground">
 	You don't have an account yet? <a
 		href="/auth/signup"
 		class="font-medium text-primary hover:underline">Create one</a
